@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# Test çalışma alanı ve üretilen çıktılar
+test/.tmp/
+test/output/*.docx
+test/output/*.html
+
+# Skill paketine sızmaması gerekenler
+*.pyc
+
+# Ajan ortamı kalıntıları
+.dsh-*
+*.tmp
+
+# İşletim sistemi
+Thumbs.db
+.DS_Store
+desktop.ini

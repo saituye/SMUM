@@ -1,0 +1,11 @@
+* text=auto eol=lf
+
+# Görseller ikili
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+
+# Belge çıktıları ikili
+*.docx binary
+*.pdf binary

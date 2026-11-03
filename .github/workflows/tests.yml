@@ -1,0 +1,38 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install optional dependency (python-docx)
+        run: python -m pip install --upgrade pip python-docx
+
+      - name: Package self-check (frontmatter, links, paths)
+        run: python test/check_package.py
+
+      - name: Regression suite
+        run: python test/run_tests.py
+
+      - name: End-to-end sample (QA gate must pass)
+        run: |
+          python screenshot-to-manual/scripts/check_manual.py test/output/kilavuz.md \
+            --screenshots test/fixtures/ekranlar \
+            --reference test/fixtures/ornek-kilavuz.md
