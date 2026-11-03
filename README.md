@@ -1,4 +1,4 @@
-# Ekran Görüntüsünden Kullanım Kılavuzu — Skill Paketi
+# Ekran Görüntüsünden Makina Kullanım Kılavuzu Oluşturma — Skill Paketi
 
 [![tests](https://github.com/saituye/SMUM/actions/workflows/tests.yml/badge.svg)](https://github.com/saituye/SMUM/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -7,7 +7,7 @@ Ekran görüntüleri + örnek bir kullanım kılavuzu verdiğinde, **örneğin �
 taklit eden ama içeriği ekranlardan gelen** yeni bir kullanım kılavuzu üreten
 taşınabilir Agent Skill.
 
-Claude Code, Cursor, Codex, DeepSeek Harness ve `SKILL.md` okuyan her ajanda çalışır.
+Claude Code, Cursor, Codex, Minimax, Kimi, DeepSeek Harness ve `SKILL.md` okuyan her ajanda çalışır.
 
 ```bash
 git clone https://github.com/saituye/SMUM.git
