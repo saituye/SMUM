@@ -23,15 +23,15 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parent.parent
-SCRIPTS = ROOT / "screenshot-to-manual" / "scripts"
+SCRIPTS = ROOT / "kullanimkilavuzu" / "scripts"
 CHECK = SCRIPTS / "check_manual.py"
 CONVERT = SCRIPTS / "convert.py"
 FIXTURES = ROOT / "test" / "fixtures" / "ekranlar"
 REFERENCE = ROOT / "test" / "fixtures" / "ornek-kilavuz.md"
 CLEAN = ROOT / "test" / "output" / "kilavuz.md"
 NEGATIVE = ROOT / "test" / "negative" / "bozuk-kilavuz.md"
-TEMPLATE = ROOT / "screenshot-to-manual" / "templates" / "manual-template.md"
-EXAMPLE = ROOT / "screenshot-to-manual" / "examples" / "worked-example.md"
+TEMPLATE = ROOT / "kullanimkilavuzu" / "templates" / "manual-template.md"
+EXAMPLE = ROOT / "kullanimkilavuzu" / "examples" / "worked-example.md"
 TMPROOT = ROOT / "test" / ".tmp"
 
 BUNDLED_PY = Path(os.path.expanduser(
@@ -281,9 +281,9 @@ def main() -> int:
     check("durum satırı net", "görsel kullanıldı" in out, out[-400:])
 
     print("\n== 5. Paket bütünlüğü ==")
-    pyc = list((ROOT / "screenshot-to-manual").rglob("*.pyc"))
+    pyc = list((ROOT / "kullanimkilavuzu").rglob("*.pyc"))
     check("skill paketinde .pyc yok", not pyc, f"{len(pyc)} dosya")
-    cache = list((ROOT / "screenshot-to-manual").rglob("__pycache__"))
+    cache = list((ROOT / "kullanimkilavuzu").rglob("__pycache__"))
     check("skill paketinde __pycache__ yok", not cache, f"{len(cache)} dizin")
 
     shutil.rmtree(TMPROOT, ignore_errors=True)

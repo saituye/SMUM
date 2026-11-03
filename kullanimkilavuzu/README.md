@@ -1,4 +1,4 @@
-# screenshot-to-manual
+# kullanimkilavuzu
 
 Ekran görüntülerinden, verdiğin **örnek kullanım kılavuzunun üslubuyla** yeni bir
 kullanım kılavuzu üreten taşınabilir **Agent Skill**.
@@ -42,48 +42,48 @@ kopyalamak yeterlidir; her araç kendi dizinini okur.
 ```bash
 # kişisel (tüm projeler)
 mkdir -p ~/.claude/skills
-cp -r screenshot-to-manual ~/.claude/skills/
+cp -r kullanimkilavuzu ~/.claude/skills/
 
 # ya da proje bazlı
 mkdir -p .claude/skills
-cp -r screenshot-to-manual .claude/skills/
+cp -r kullanimkilavuzu .claude/skills/
 ```
 
 ### Cursor
 
 ```bash
 mkdir -p ~/.cursor/skills
-cp -r screenshot-to-manual ~/.cursor/skills/
+cp -r kullanimkilavuzu ~/.cursor/skills/
 
 # proje bazlı
 mkdir -p .cursor/skills
-cp -r screenshot-to-manual .cursor/skills/
+cp -r kullanimkilavuzu .cursor/skills/
 ```
 
 ### Codex / DeepSeek Harness
 
 ```bash
 mkdir -p ~/.agents/skills
-cp -r screenshot-to-manual ~/.agents/skills/
+cp -r kullanimkilavuzu ~/.agents/skills/
 
 # proje bazlı
 mkdir -p .agents/skills
-cp -r screenshot-to-manual .agents/skills/
+cp -r kullanimkilavuzu .agents/skills/
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-Copy-Item -Recurse -Force "screenshot-to-manual" "$env:USERPROFILE\.agents\skills\"
-Copy-Item -Recurse -Force "screenshot-to-manual" "$env:USERPROFILE\.claude\skills\"
-Copy-Item -Recurse -Force "screenshot-to-manual" "$env:USERPROFILE\.cursor\skills\"
+Copy-Item -Recurse -Force "kullanimkilavuzu" "$env:USERPROFILE\.agents\skills\"
+Copy-Item -Recurse -Force "kullanimkilavuzu" "$env:USERPROFILE\.claude\skills\"
+Copy-Item -Recurse -Force "kullanimkilavuzu" "$env:USERPROFILE\.cursor\skills\"
 ```
 
 ### Diğer ajanlar / Other agents
 
 `SKILL.md` standart Markdown'dır. Aracın skill/kural mekanizması yoksa dosyayı
 sistem istemine ekle veya proje köküne `AGENTS.md` / `CLAUDE.md` içinden
-"Ekran görüntüsünden kılavuz üretirken `screenshot-to-manual/SKILL.md` uygula"
+"Ekran görüntüsünden kılavuz üretirken `kullanimkilavuzu/SKILL.md` uygula"
 diye yönlendir.
 
 Kurulumdan sonra aracı yeniden başlat; skill listesinde görünmelidir.
@@ -94,7 +94,7 @@ Kurulumdan sonra aracı yeniden başlat; skill listesinde görünmelidir.
 
 Skill'i adıyla çağır ve iki girdiyi ver:
 
-> `/screenshot-to-manual`
+> `/kullanimkilavuzu`
 >
 > Ekran görüntüleri: `ekranlar/` klasöründe.
 > Örnek kılavuz: `ornek-kilavuz.md`.
@@ -134,13 +134,13 @@ cikti/
 
 ```bash
 # Kalite kapısı (skill yolunu kendi kurulumuna göre değiştir)
-python ~/.agents/skills/screenshot-to-manual/scripts/check_manual.py \
+python ~/.agents/skills/kullanimkilavuzu/scripts/check_manual.py \
     cikti/kilavuz.md --screenshots ekranlar/ --reference ornek-kilavuz.md
 
 # Dönüştürme
-python ~/.agents/skills/screenshot-to-manual/scripts/convert.py \
+python ~/.agents/skills/kullanimkilavuzu/scripts/convert.py \
     cikti/kilavuz.md --format html
-python ~/.agents/skills/screenshot-to-manual/scripts/convert.py \
+python ~/.agents/skills/kullanimkilavuzu/scripts/convert.py \
     cikti/kilavuz.md --format docx,html --out cikti/ --lang tr
 ```
 
@@ -181,10 +181,10 @@ Test sonuçları ve negatif test: [`../test/RESULT.md`](../test/RESULT.md).
 
 ## Taşınabilirlik notları / Portability notes
 
-- `SKILL.md` yalnızca `name` + `description` + `disable-model-invocation`
-  alanlarını kullanır. `disable-model-invocation` Codex/Cursor'da dikkate alınır,
-  Claude Code bilinmeyen alanı yok sayar — zararsızdır. Otomatik tetiklenmesini
-  istiyorsan bu satırı sil.
+- `SKILL.md` yalnızca `name` + `description` alanlarını kullanır. `name` değeri
+  `kullanimkilavuzu` olduğu için hem `/kullanimkilavuzu` komutuyla hem de doğal
+  dille (ekran görüntüsü + örnek kılavuz verildiğinde) tetiklenir.
+- Klasör adı ile `name` alanı **aynı** olmalı: `kullanimkilavuzu/SKILL.md`.
 - Talimatlar araç adı dayatmaz; "görseli gör / dosya yaz / betik çalıştır"
   ihtiyaçları için eşleme tablosu verir.
 - Betikler yalnızca Python standart kütüphanesini kullanır; `docx` ve `pdf`

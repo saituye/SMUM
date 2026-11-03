@@ -21,7 +21,7 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILL = ROOT / "screenshot-to-manual"
+SKILL = ROOT / "kullanimkilavuzu"
 problems: list[str] = []
 
 

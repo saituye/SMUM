@@ -1,5 +1,5 @@
 ---
-name: screenshot-to-manual
+name: kullanimkilavuzu
 description: >-
   Builds a new step-by-step user manual from screenshots, using a supplied
   example manual as the style and structure reference. Use when the user hands
@@ -7,9 +7,9 @@ description: >-
   for a new manual, guide, or documentation built from those images. Triggers:
   "kullanım kılavuzu", "kullanım kılavuzu oluştur", "ekran görüntülerinden
   kılavuz", "ekran resimleri", "ekran görüntüsü ekle", "adım adım kılavuz",
-  "dokümantasyon üret", "user manual from screenshots", "screenshot to manual",
+  "dokümantasyon üret", "kullanimkilavuzu", "/kullanimkilavuzu",
+  "user manual from screenshots", "screenshot to manual",
   "write a how-to guide from images", "document these screens".
-disable-model-invocation: true
 ---
 
 # Ekran Görüntüsünden Kullanım Kılavuzu / Screenshot → User Manual

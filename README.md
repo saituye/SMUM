@@ -15,7 +15,7 @@ git clone https://github.com/saituye/screenshot-to-manual.git
 
 ```
 kullanım kılavuzu/
-├── screenshot-to-manual/     ← SKILL paketi (kurulacak olan)
+├── kullanimkilavuzu/     ← SKILL paketi (kurulacak olan)
 │   ├── SKILL.md              ana talimatlar (iki dilli)
 │   ├── README.md             kurulum + taşınabilirlik
 │   ├── reference/            stil sözleşmesi, ekran analizi şeması
@@ -49,24 +49,24 @@ Skill, `SKILL.md` içeren bir klasördür; aracın okuduğu dizine kopyalamak ye
 
 ```powershell
 # Windows — üçüne birden
-Copy-Item -Recurse -Force "screenshot-to-manual" "$env:USERPROFILE\.agents\skills\"
-Copy-Item -Recurse -Force "screenshot-to-manual" "$env:USERPROFILE\.claude\skills\"
-Copy-Item -Recurse -Force "screenshot-to-manual" "$env:USERPROFILE\.cursor\skills\"
+Copy-Item -Recurse -Force "kullanimkilavuzu" "$env:USERPROFILE\.agents\skills\"
+Copy-Item -Recurse -Force "kullanimkilavuzu" "$env:USERPROFILE\.claude\skills\"
+Copy-Item -Recurse -Force "kullanimkilavuzu" "$env:USERPROFILE\.cursor\skills\"
 ```
 
 ```bash
 # macOS / Linux
-cp -r screenshot-to-manual ~/.agents/skills/
-cp -r screenshot-to-manual ~/.claude/skills/
-cp -r screenshot-to-manual ~/.cursor/skills/
+cp -r kullanimkilavuzu ~/.agents/skills/
+cp -r kullanimkilavuzu ~/.claude/skills/
+cp -r kullanimkilavuzu ~/.cursor/skills/
 ```
 
 Kopyalamadan sonra aracı yeniden başlat. Kurulum ayrıntıları:
-[screenshot-to-manual/README.md](screenshot-to-manual/README.md)
+[kullanimkilavuzu/README.md](kullanimkilavuzu/README.md)
 
 ## Kullanım
 
-> `/screenshot-to-manual`
+> `/kullanimkilavuzu`
 >
 > Ekran görüntüleri: `ekranlar/` klasöründe.
 > Örnek kılavuz: `ornek-kilavuz.md`.

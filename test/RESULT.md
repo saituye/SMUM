@@ -4,10 +4,10 @@ Skill'in çalıştığının kanıtı. Yeniden üretmek için:
 
 ```bash
 python test/make_fixtures.py
-python screenshot-to-manual/scripts/check_manual.py test/output/kilavuz.md \
+python kullanimkilavuzu/scripts/check_manual.py test/output/kilavuz.md \
     --screenshots test/fixtures/ekranlar \
     --reference test/fixtures/ornek-kilavuz.md
-python screenshot-to-manual/scripts/convert.py test/output/kilavuz.md \
+python kullanimkilavuzu/scripts/convert.py test/output/kilavuz.md \
     --format docx,html --out test/output
 ```
 

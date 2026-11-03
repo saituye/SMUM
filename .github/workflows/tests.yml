@@ -33,6 +33,6 @@ jobs:
 
       - name: End-to-end sample (QA gate must pass)
         run: |
-          python screenshot-to-manual/scripts/check_manual.py test/output/kilavuz.md \
+          python kullanimkilavuzu/scripts/check_manual.py test/output/kilavuz.md \
             --screenshots test/fixtures/ekranlar \
             --reference test/fixtures/ornek-kilavuz.md

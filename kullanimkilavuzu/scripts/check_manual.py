@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""check_manual.py -- QA gate for manuals produced by the screenshot-to-manual skill.
+"""check_manual.py -- QA gate for manuals produced by the kullanimkilavuzu skill.
 
 Denetler / Checks:
   1. Her görsel yolu gerçekten var mı                (ERROR)
