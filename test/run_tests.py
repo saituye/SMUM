@@ -280,7 +280,103 @@ def main() -> int:
     check("mesajda 'veya 3' tekrarı yok", "veya 3" not in out, out[-400:])
     check("durum satırı net", "görsel kullanıldı" in out, out[-400:])
 
-    print("\n== 5. Paket bütünlüğü ==")
+    print("\n== 5. Yeni yetenekler: referans profili, alanlar, DOCX kimliği ==")
+
+    READ_REF = SCRIPTS / "read_reference.py"
+
+    # MD referansı her ortamda okunabilir
+    rc, out = run([sys.executable, READ_REF, REFERENCE])
+    check("read_reference: MD profili", rc == 0 and "Belge künyesi" in out, out[-300:])
+    check("read_reference: alt yazı kalıbı bulundu", "Şekil" in out, out[-400:])
+    check("read_reference: numaralandırma bölümü", "Numaralandırma" in out, out[-300:])
+
+    rc, out = run([sys.executable, READ_REF, "yok-boyle-bir-dosya.pdf"])
+    check("read_reference: olmayan dosya -> kod 2", rc == 2, out[-200:])
+
+    rr_dir = fresh_dir("rr")
+    rc, out = run([sys.executable, READ_REF, REFERENCE, "--json", rr_dir / "p.json"])
+    check("read_reference: --json üretiyor", (rr_dir / "p.json").is_file(), out[-200:])
+    if (rr_dir / "p.json").is_file():
+        import json as _json
+        prof = _json.loads((rr_dir / "p.json").read_text(encoding="utf-8"))
+        check("read_reference: JSON alanları",
+              {"kind", "headings", "captions", "numbering"} <= set(prof),
+              str(sorted(prof))[:200])
+
+    # Alan yer tutucuları hata değil, uyarı olmalı
+    fields_md = fresh_dir("fields") / "f.md"
+    fields_md.write_text(
+        "# T\n\n## Bölüm 1 — A\n\n**Adım 1.** Doldurunuz.\n\n"
+        "| Parametre | Değer |\n|---|---|\n"
+        "| Akım | [ÜRETİCİ TARAFINDAN DOLDURULACAK] |\n\n"
+        "**Firma:** [FİRMA ADI] · **Tel:** [TELEFON]\n\n"
+        "## Açık Sorular / Open Questions\n\nYok.\n", encoding="utf-8")
+    rc, out = run([sys.executable, CHECK, fields_md])
+    check("alan yer tutucuları PASS (hata değil)", rc == 0, out[-500:])
+    check("alan yer tutucuları sayıldı", "Doldurulacak alan: 3" in out, out[-500:])
+    check("alan yer tutucusu uyarısı", "unfilled" in out.lower() or "alan yer tutucusu var" in out,
+          out[-500:])
+
+    rc, out = run([sys.executable, CHECK, fields_md, "--json"])
+    check("alan sayısı JSON'da", '"domain_fields": 3' in out, out[-400:])
+
+    ok_docx2, exe2 = has_python_docx()
+    if not ok_docx2:
+        print("  SKIP  docx bağımlılıklı testler")
+    else:
+        # DOCX üstbilgi / doküman no / sayfa numarası
+        hf_dir = fresh_dir("hf")
+        rc, out = run([exe2, CONVERT, CLEAN, "--format", "docx", "--out", hf_dir,
+                       "--header", "Forma Makina",
+                       "--doc-no", "KK.SP310.TR.00-15.08.2015",
+                       "--footer", "Kullanım Kılavuzu"])
+        check("--header/--doc-no ile docx üretildi", rc == 0, out[-300:])
+        if (hf_dir / "kilavuz.docx").is_file():
+            import zipfile
+            with zipfile.ZipFile(hf_dir / "kilavuz.docx") as z:
+                names = z.namelist()
+                hdr = "".join(z.read(n).decode("utf-8", "replace")
+                              for n in names if "header" in n)
+                ftr = "".join(z.read(n).decode("utf-8", "replace")
+                              for n in names if "footer" in n)
+            check("docx üstbilgisinde firma + doküman no",
+                  "Forma Makina" in hdr and "KK.SP310" in hdr)
+            check("docx altbilgisinde PAGE alanı", "PAGE" in ftr)
+
+        # DOCX referans profili
+        rc, out = run([exe2, READ_REF, CLEAN.with_suffix(".docx")])
+        if (ROOT / "test" / "output" / "kilavuz.docx").is_file():
+            check("read_reference: DOCX profili",
+                  rc == 0 and "Başlık hiyerarşisi" in out, out[-400:])
+        else:
+            print("  SKIP  docx referans profili (kilavuz.docx yok)")
+
+        # PDF profili -- pymupdf hangi yorumlayıcıda varsa onunla
+        pdf_py = None
+        for candidate in (sys.executable, exe2):
+            rc_pdf, _ = run([candidate, "-c", "import pymupdf"])
+            if rc_pdf == 0:
+                pdf_py = candidate
+                break
+        if pdf_py is None:
+            print("  SKIP  PDF profili (pymupdf yok)")
+        else:
+            pdf = fresh_dir("pdf") / "ornek.pdf"
+            rc_gen, out_gen = run([pdf_py, "-c",
+                "import pymupdf,sys;d=pymupdf.open();p=d.new_page();"
+                "p.insert_text((72,72),'6.5.1.1. Test Basligi',fontsize=11);"
+                "p.insert_text((72,120),'Sekil 1-Test Ekrani',fontsize=8);"
+                "d.save(sys.argv[1]);d.close()", pdf])
+            if rc_gen == 0 and pdf.is_file():
+                rc, out = run([pdf_py, READ_REF, pdf])
+                check("read_reference: PDF profili",
+                      rc == 0 and "Test Basligi" in out, out[-400:])
+                check("read_reference: PDF alt yazısı",
+                      "Sekil 1" in out or "şekil" in out.lower(), out[-400:])
+            else:
+                print("  SKIP  PDF profili (test PDF üretilemedi)")
+
+    print("\n== 6. Paket bütünlüğü ==")
     pyc = list((ROOT / "kullanimkilavuzu").rglob("*.pyc"))
     check("skill paketinde .pyc yok", not pyc, f"{len(pyc)} dosya")
     cache = list((ROOT / "kullanimkilavuzu").rglob("__pycache__"))

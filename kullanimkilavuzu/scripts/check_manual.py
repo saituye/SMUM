@@ -55,6 +55,18 @@ DECIMAL_RE = re.compile(r"^#{2,5}\s+(\d+\.\d+(?:\.\d+)?)[\.\s]")
 SEKIL_RE = re.compile(r"^(?:Şekil|Sekil|Figure|Resim)\s+(\d+)\b", re.IGNORECASE)
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$")
 PLACEHOLDER_WORDS = ("TODO", "FIXME", "XXX", "LOREM", "TBD", "PLACEHOLDER")
+# Bilinçli bırakılan, üreticinin/müşterinin dolduracağı alanlar.
+# Bunlar HATA değildir: taslak belge bunlarla teslim edilir. Yalnız sayılır.
+DOMAIN_FIELDS = (
+    "ÜRETİCİ TARAFINDAN DOLDURULACAK", "BİLGİ EKLENECEK",
+    "DOĞRULANMASI GEREKİYOR", "ALARM KODU BELİRTİLMEMİŞ",
+    "GÖRSEL EKLENECEK", "FİRMA ADI", "ADRES", "TELEFON", "E-POSTA",
+    "WEB SİTESİ", "TEKNİK SERVİS TELEFONU", "SERİ NO", "MODEL",
+    "ÜRETİM YILI", "DOKÜMAN NO", "REVİZYON", "TARİH",
+)
+DOMAIN_FIELD_RE = re.compile(
+    r"\[\s*(" + "|".join(re.escape(f) for f in DOMAIN_FIELDS) + r")\s*\]",
+    re.IGNORECASE)
 OPEN_Q_RE = re.compile(r"(açık\s+sorular|acik\s+sorular|open\s+questions)", re.IGNORECASE)
 CALLOUT_RE = re.compile(
     r"^>\s*\*\*(Not|Uyarı|Uyari|İpucu|Ipucu|Dikkat|Önemli|Onemli|Warning|Note|Tip|Caution|Important)\b",
@@ -227,6 +239,32 @@ def check_placeholders(lines: list[str], findings: list[Finding]) -> None:
                 continue
             findings.append(Finding("ERROR", "angle-placeholder",
                                     f"Doldurulmamış yer tutucu: <{inner}>", i))
+
+
+def check_domain_fields(lines: list[str], findings: list[Finding]) -> int:
+    """Bilinçli bırakılan alan yer tutucularını sayar (HATA değil, bilgi).
+
+    Bunlar üreticinin/müşterinin dolduracağı alanlardır; taslak belge bunlarla
+    teslim edilebilir. Teslim mesajında sayısı bildirilmelidir.
+    """
+    counts: dict[str, int] = {}
+    first_line: dict[str, int] = {}
+    for i, line in enumerate(lines, start=1):
+        for m in DOMAIN_FIELD_RE.finditer(line):
+            # Sözlük tanımının kendisini (reference/placeholders.md) saymayalım:
+            # kılavuzda aynı satırda başka metin yoksa da sayılır, bu yüzden
+            # yalnızca kılavuz gövdesinde geçenleri sayıyoruz.
+            key = m.group(1).upper()
+            counts[key] = counts.get(key, 0) + 1
+            first_line.setdefault(key, i)
+    total = sum(counts.values())
+    if total:
+        detail = ", ".join(f"{k}×{v}" for k, v in sorted(counts.items()))
+        findings.append(Finding(
+            "WARNING", "unfilled-field",
+            f"Doldurulacak {total} alan yer tutucusu var ({detail}) — "
+            f"teslim mesajında bildir", first_line[min(first_line, key=first_line.get)]))
+    return total
 
 
 def _is_comparison(line: str, match: re.Match) -> bool:
@@ -439,6 +477,7 @@ def main(argv: list[str] | None = None) -> int:
     heading_numbering(lines, findings)
     steps = step_numbering(lines, findings)
     check_placeholders(lines, findings)
+    domain_fields = check_domain_fields(lines, findings)
     check_open_questions(lines, findings)
     check_step_images(lines, findings)
     check_captions(lines, findings)
@@ -468,6 +507,7 @@ def main(argv: list[str] | None = None) -> int:
             "screenshots_total": shots_total,
             "images_referenced": len(used_names),
             "steps": steps,
+            "domain_fields": domain_fields,
             "errors": len(errors),
             "warnings": len(warnings),
             "passed": not failed,
@@ -478,7 +518,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Kılavuz     : {manual}")
         print(f"Ekranlar    : {shots_used}/{shots_total} görsel kullanıldı "
               f"({len(screenshot_dirs)} klasör)")
-        print(f"Görsel ref  : {len(used_names)}  |  Adım: {steps}")
+        print(f"Görsel ref  : {len(used_names)}  |  Adım: {steps}  |  "
+              f"Doldurulacak alan: {domain_fields}")
         if args.reference:
             print(f"Referans    : {args.reference}")
         print()

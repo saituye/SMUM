@@ -316,7 +316,79 @@ def _first_heading(text: str) -> str | None:
 # DOCX
 # --------------------------------------------------------------------------- #
 
-def to_docx(text: str, out: Path, base: Path) -> bool:
+def _add_page_field(paragraph) -> None:
+    """Paragrafa Word sayfa numarası alanı (PAGE) ekler."""
+    from docx.oxml import OxmlElement
+    from docx.oxml.ns import qn
+
+    run = paragraph.add_run()
+    begin = OxmlElement("w:fldChar")
+    begin.set(qn("w:fldCharType"), "begin")
+    instr = OxmlElement("w:instrText")
+    instr.set(qn("xml:space"), "preserve")
+    instr.text = "PAGE"
+    end = OxmlElement("w:fldChar")
+    end.set(qn("w:fldCharType"), "end")
+    run._r.append(begin)
+    run._r.append(instr)
+    run._r.append(end)
+
+
+def _add_rule(paragraph) -> None:
+    """Paragrafa alt kenarlık (üstbilgi çizgisi) ekler."""
+    from docx.oxml import OxmlElement
+    from docx.oxml.ns import qn
+
+    p_pr = paragraph._p.get_or_add_pPr()
+    borders = OxmlElement("w:pBdr")
+    bottom = OxmlElement("w:bottom")
+    bottom.set(qn("w:val"), "single")
+    bottom.set(qn("w:sz"), "6")
+    bottom.set(qn("w:space"), "1")
+    bottom.set(qn("w:color"), "D8DEE6")
+    borders.append(bottom)
+    p_pr.append(borders)
+
+
+def _setup_header_footer(doc, header: str | None, doc_no: str | None,
+                         footer: str | None, page_numbers: bool) -> None:
+    """Üstbilgiye başlık + doküman no, altbilgiye metin + sayfa numarası yazar."""
+    try:
+        from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT
+        from docx.shared import Inches, Pt
+    except ImportError:  # pragma: no cover
+        return
+    usable = Inches(6.5)
+
+    for section in doc.sections:
+        if header or doc_no:
+            p = section.header.paragraphs[0]
+            p.text = ""
+            p.paragraph_format.tab_stops.add_tab_stop(usable, WD_TAB_ALIGNMENT.RIGHT)
+            if header:
+                run = p.add_run(header)
+                run.font.size = Pt(8)
+            if doc_no:
+                run = p.add_run("\t" + doc_no)
+                run.font.size = Pt(8)
+            _add_rule(p)
+
+        if footer or page_numbers:
+            p = section.footer.paragraphs[0]
+            p.text = ""
+            p.paragraph_format.tab_stops.add_tab_stop(usable, WD_TAB_ALIGNMENT.RIGHT)
+            if footer:
+                run = p.add_run(footer)
+                run.font.size = Pt(8)
+            if page_numbers:
+                p.add_run("\t")
+                _add_page_field(p)
+            p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+
+def to_docx(text: str, out: Path, base: Path, header: str | None = None,
+            doc_no: str | None = None, footer: str | None = None,
+            page_numbers: bool = True) -> bool:
     """`base`, görsellerin çözüleceği klasördür: GİRDİ markdown'ının klasörü."""
     try:
         from docx import Document  # type: ignore
@@ -334,6 +406,8 @@ def to_docx(text: str, out: Path, base: Path) -> bool:
         section.bottom_margin = Inches(0.8)
         section.left_margin = Inches(0.9)
         section.right_margin = Inches(0.9)
+
+    _setup_header_footer(doc, header, doc_no, footer, page_numbers)
 
     for kind, payload in parse_blocks(text):
         if kind == "heading":
@@ -547,6 +621,13 @@ def main(argv: list[str] | None = None) -> int:
                     help="HTML <html lang> değeri (varsayılan: tr)")
     ap.add_argument("--keep-html", action="store_true",
                     help="PDF üretilirken ara HTML dosyasını da bırak")
+    ap.add_argument("--header", help="DOCX üstbilgisi (ör. firma adı)")
+    ap.add_argument("--doc-no", dest="doc_no",
+                    help="DOCX üstbilgisine sağa yaslanacak doküman no / revizyon")
+    ap.add_argument("--footer", help="DOCX altbilgisi (sayfa numarası ayrıca eklenir)")
+    ap.add_argument("--no-page-numbers", dest="page_numbers",
+                    action="store_false", help="DOCX altbilgisine sayfa numarası ekleme")
+    ap.set_defaults(page_numbers=True)
     args = ap.parse_args(argv)
 
     src = Path(args.manual)
@@ -575,7 +656,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if "docx" in formats:
         docx_path = out_dir / f"{stem}.docx"
-        if to_docx(text, docx_path, base):
+        if to_docx(text, docx_path, base, header=args.header, doc_no=args.doc_no,
+                   footer=args.footer, page_numbers=args.page_numbers):
             print(f"  + {docx_path}")
         else:
             ok = False
@@ -592,7 +674,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if "pdf" in formats:
         docx_path = out_dir / f"{stem}.docx"
-        if not docx_path.is_file() and not to_docx(text, docx_path, base):
+        if not docx_path.is_file() and not to_docx(
+                text, docx_path, base, header=args.header, doc_no=args.doc_no,
+                footer=args.footer, page_numbers=args.page_numbers):
             print("  ! PDF için DOCX üretilemedi;"
                   " '--format html' kullanıp tarayıcıdan Ctrl+P → PDF deneyin.")
             ok = False

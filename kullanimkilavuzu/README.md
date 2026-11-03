@@ -169,13 +169,40 @@ Test sonuçları ve negatif test: [`../test/RESULT.md`](../test/RESULT.md).
 | Yol | İçerik |
 |---|---|
 | `SKILL.md` | Ana talimatlar (iki dilli), iş akışı, kesin kurallar |
+| `scripts/read_reference.py` | **Yeni:** PDF/DOCX/MD referanstan ölçülmüş stil profili |
 | `reference/style-contract.md` | Örnek kılavuzdan stil çıkarma şablonu |
 | `reference/screenshot-analysis.md` | Ekran okuma şeması ve sıralama sinyalleri |
+| `reference/placeholders.md` | **Yeni:** `[ÜRETİCİ TARAFINDAN DOLDURULACAK]` yer tutucu sözlüğü |
 | `templates/manual-template.md` | Çıktı iskeleti |
+| `templates/alarm-section.md` | **Yeni:** alarm bölümü + özet tablo şablonu |
 | `examples/worked-example.md` | Uçtan uca dolu örnek |
 | `scripts/check_manual.py` | QA denetimi (bağımlılıksız) |
-| `scripts/convert.py` | Markdown → HTML / DOCX / PDF |
+| `scripts/convert.py` | Markdown → HTML / DOCX / PDF (üstbilgi/altbilgi + sayfa no) |
 | `README.md` | Bu dosya |
+
+## Şablon modu / Template mode
+
+Referans bir **PDF/DOCX kurumsal şablonuysa** (kapak, içindekiler, üstbilgi,
+doküman no, revizyon tablosu), skill şablonu iskelet olarak korur ve içeriği
+ekran görüntülerinden doldurur. Bölüm sırası, numaralandırma derinliği
+(`6.5.1.1.` gibi) ve doküman kimliği aynen korunur; PDF'in cümleleri kopyalanmaz.
+
+```bash
+# 1) Referansın ölçülmüş profilini çıkar
+python scripts/read_reference.py ornek-kilavuz.pdf \
+    --out 00-analiz-referans.md --json 00-analiz-referans.json
+
+# 2) Kılavuzu üret, sonra kurumsal kimlikle Word'e çevir
+python scripts/convert.py cikti/kilavuz.md --format docx \
+    --header "Firma Adı" --doc-no "KK.SP310.TR.00" --footer "Kullanım Kılavuzu"
+```
+
+`read_reference.py` PDF için `pymupdf`, DOCX için `python-docx` ister; ikisi de
+yoksa betik kurulum komutunu yazdırır.
+
+Bilinmeyen bilgi **uydurulmaz**; `[ÜRETİCİ TARAFINDAN DOLDURULACAK]`,
+`[DOĞRULANMASI GEREKİYOR]`, `[ALARM KODU BELİRTİLMEMİŞ]` gibi açıklayıcı yer
+tutucular bırakılır ve teslim mesajında sayılır.
 
 ---
 

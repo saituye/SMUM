@@ -27,15 +27,22 @@ kullanım kılavuzu/
 
 ## Ne yapıyor?
 
-1. **Stil çıkarır** — örnek kılavuzun başlık düzeni, adım kipi, görsel yerleşimi,
-   uyarı kutuları, tonu ölçülür. Cümleleri kopyalanmaz.
+1. **Stil çıkarır** — `read_reference.py` referans PDF/DOCX/MD'den **ölçülmüş**
+   profil çıkarır: başlık hiyerarşisi, numaralandırma derinliği, üstbilgi/altbilgi,
+   doküman no/revizyon, şekil alt yazı kalıbı, punto ve renkler. Cümleler kopyalanmaz.
 2. **Ekranları okur** — her görsel tek tek incelenir; ekran adı, eylemi, durumu,
-   vurgusu, belirsizlikleri kaydedilir.
+   vurgusu, belirsizlikleri kaydedilir. Arayüz kılavuzlarında her ekran için
+   *amaç / bilgiler / buton tablosu / operatör kullanımı / dikkat* bloğu yazılır.
 3. **Akışa dizer** — görseller sıralanır, eksik ara adımlar uydurulmadan işaretlenir.
-4. **Yazar** — her adım = tek eylem + tek ekran görüntüsü.
-5. **Denetler** — `check_manual.py` kırık yolu, kullanılmayan ekranı, numara
-   atlamasını, doldurulmamış yer tutucuyu yakalar.
-6. **Teslim eder** — Markdown + istenirse `.docx` / yazdırılabilir `.html`.
+4. **Yazar** — her adım = tek eylem + tek ekran görüntüsü. Şablon modunda bölüm
+   sırası, numaralandırma ve kurumsal kimlik korunur; alarm bölümü ayrı şablonla üretilir.
+5. **Uydurmaz** — bilinmeyen bilgi `[ÜRETİCİ TARAFINDAN DOLDURULACAK]`,
+   `[DOĞRULANMASI GEREKİYOR]`, `[ALARM KODU BELİRTİLMEMİŞ]` gibi açıklayıcı yer
+   tutucularla işaretlenir ve teslim mesajında sayılır.
+6. **Denetler** — `check_manual.py` kırık yolu, kullanılmayan ekranı, numara
+   atlamasını, doldurulmamış şablon kalıntısını yakalar; alan yer tutucularını sayar.
+7. **Teslim eder** — Markdown + istenirse `.docx` (üstbilgi, doküman no, sayfa
+   numarası) / yazdırılabilir `.html`.
 
 ## Kurulum
 
@@ -78,7 +85,7 @@ alarak yeni bir kullanım kılavuzu oluştur."*
 ## Test durumu
 
 ```bash
-python test/run_tests.py      # 26/26 PASS
+python test/run_tests.py      # 56/56 PASS
 ```
 
 ```bash

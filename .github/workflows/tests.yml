@@ -22,8 +22,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install optional dependency (python-docx)
-        run: python -m pip install --upgrade pip python-docx
+      - name: Install optional dependencies (DOCX + PDF readers)
+        run: python -m pip install --upgrade pip python-docx pymupdf
 
       - name: Package self-check (frontmatter, links, paths)
         run: python test/check_package.py

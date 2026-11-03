@@ -154,9 +154,29 @@ KRİTİK/ORTA bulgu yok. İki küçük not da kapatıldı:
 
 Ayrıntılı kanıtlar: `test/VERIFY.md` → "Round 3".
 
-## 7. Sonuç
+## 7. v0.3 — Şablon modu ve referans profili
 
-- Skill paketi: **hazır**, 40/40 regresyon testi geçiyor.
+Gerçek bir endüstriyel makine kılavuzu (`KK.SP310.TR.00`, Forma Makina, 27 sayfa,
+Word 2016 kaynaklı PDF) ve onu üreten prompt incelenerek eklendi:
+
+| Yetenek | Ne yapar |
+|---|---|
+| `scripts/read_reference.py` | PDF/DOCX/MD'den **ölçülmüş** profil: başlık hiyerarşisi, numaralandırma derinliği, üstbilgi/altbilgi, doküman no/revizyon, şekil alt yazı kalıbı, punto, renk |
+| `reference/placeholders.md` | `[ÜRETİCİ TARAFINDAN DOLDURULACAK]`, `[DOĞRULANMASI GEREKİYOR]`, `[ALARM KODU BELİRTİLMEMİŞ]` … sözlüğü |
+| `templates/alarm-section.md` | Alarm başına 5 parçalı kayıt + özet tablo |
+| `SKILL.md` | Şablon modu, kaynak öncelik sırası, ekran başına açıklama bloğu, operatör/servis ayrımı |
+| `check_manual.py` | Alan yer tutucularını sayar (`unfilled-field` uyarısı), hata saymaz |
+| `convert.py` | DOCX üstbilgi (`--header`, `--doc-no`), altbilgi (`--footer`), sayfa numarası alanı |
+
+Gerçek PDF üzerinde ölçüm: **68 numaralı başlık**, 4 seviye (`6.5.1.1.`),
+`KK.SP310.TR.00-15.08.2015` doküman no, 40 şekil alt yazısı, gövde 8 pt,
+başlık rengi `#1F497D`. Betik ayrıca kaynaktaki **şekil numaralarının bölüm
+içinde yeniden başladığını** tespit edip uyardı.
+
+## 8. Sonuç
+
+- Skill paketi: **hazır**, **56/56** regresyon testi geçiyor.
 - Üç bağımsız doğrulama turu; bulunan **21 bulgunun tamamı** kapatıldı.
-- Tek bilinen sınır: görsel okuma yeteneği gerektirir (SKILL.md Kural 9) ve
-  `x < 10 > y` uç durumu bilinçli olarak muhafazakâr.
+- Bilinen sınırlar: görsel okuma yeteneği gerektirir (SKILL.md Kural 9);
+  `x < 10 > y` uç durumu bilinçli olarak muhafazakâr; PDF okuma için `pymupdf`,
+  DOCX okuma için `python-docx` gerekir (yoksa betikler zarifçe düşer).
